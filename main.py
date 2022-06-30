@@ -1,10 +1,9 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-
-import weatherRequest
 import telepot
 import os
 
-# simple reply bot
+import weatherRequest
+
 users = {}
 
 
@@ -14,15 +13,17 @@ def handle(msg):
 
     if msg.get('location'):
         users[chat_id] = msg['location']
-        print(msg['location'])
         bot.sendMessage(chat_id, "Position saved")
 
 
 def send_all():
     for user_id, location in users.items():
-        response = weatherRequest.weather_request(
-            location['latitude'], location['longitude']
-        )
+        try:
+            response = weatherRequest.weather_request(
+                location['latitude'], location['longitude']
+            )
+        except Exception:
+            bot.sendMessage(user_id, "Check manually. Weather service out")
 
         if weatherRequest.will_rain(response):
             bot.sendMessage(user_id, "Warning. It may rain.")
