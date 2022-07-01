@@ -1,32 +1,44 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 import telepot
+import sqlite3
 import os
 
 import weatherRequest
 
-users = {}
+db_name = 'locations.db'
 
 
 def handle(msg):
-    global users
     chat_id = msg['chat']['id']
 
     if msg.get('location'):
-        users[chat_id] = msg['location']
-        bot.sendMessage(chat_id, "Position saved")
+        lat = msg['location']['latitude']
+        lon = msg['location']['longitude']
+        try:
+            with sqlite3.connect(db_name) as con:
+                cur = con.cursor()
+                query = f"""INSERT INTO locations VALUES
+                            ({chat_id}, {lat}, {lon})"""
+                cur.execute(query)
+                con.commit()
+                bot.sendMessage(chat_id, "Position updated.")
+        except Exception:
+            bot.sendMessage(chat_id, "Position not updated, retry later.")
 
 
 def send_all():
-    for user_id, location in users.items():
+    users = []
+    with sqlite3.connect() as con:
+        cur = con.cursor()
+        users = [row for row in cur.execute('SELECT * FROM locations')]
+
+    for user_id, lat, lon in users:
         try:
-            response = weatherRequest.weather_request(
-                location['latitude'], location['longitude']
-            )
+            response = weatherRequest.weather_request(lat, lon)
+            if weatherRequest.will_rain(response):
+                bot.sendMessage(user_id, "Warning. It may rain.")
         except Exception:
             bot.sendMessage(user_id, "Check manually. Weather service out")
-
-        if weatherRequest.will_rain(response):
-            bot.sendMessage(user_id, "Warning. It may rain.")
 
 
 telegram_token = os.environ['TELEGRAM_TOKEN']
