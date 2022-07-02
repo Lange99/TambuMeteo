@@ -1,5 +1,6 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from telegram import Update, Bot
+from telegram.error import Forbidden
 from telegram.ext import (ApplicationBuilder,
                           CommandHandler,
                           MessageHandler,
@@ -49,7 +50,15 @@ async def send_all():
         try:
             response = weatherRequest.weather_request(lat, lon)
             if weatherRequest.will_rain(response):
-                await bot.sendMessage(user_id, 'Warning. It may rain.')
+                try:
+                    await bot.sendMessage(user_id, 'Warning. It may rain.')
+                except Forbidden:
+                    with sqlite3.connect(db_name) as con:
+                        cur = con.cursor()
+                        cur.execute(
+                            f"DELETE FROM locations WHERE chat_id={user_id}"
+                        )
+                        con.commit()
         except Exception:
             await bot.sendMessage(user_id, 'Warning! Weather service out.')
 
