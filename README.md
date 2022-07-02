@@ -2,6 +2,8 @@
 A Telegram bot sending reminders when it rains given a location.
 
 # Initialization
+Clone the repository, create a virtualenv using ```--pre``` keyword.
+
 Persistency is achieved through a sqlite database file called locations.db.
 The DB is composed by a single table "locations". Structure is very simple:
 ```sql
