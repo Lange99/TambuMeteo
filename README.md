@@ -2,7 +2,7 @@
 A Telegram bot sending reminders when it rains given a location.
 
 # Initialization
-Clone the repository, create a virtualenv using ```--pre``` keyword.
+Clone the repository, install dependencies (use ```--pre``` keyword with ```python-telegram-bot```).
 
 Persistency is achieved through a sqlite database file called locations.db.
 The DB is composed by a single table "locations". Structure is very simple:
