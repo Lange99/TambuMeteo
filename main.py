@@ -21,8 +21,8 @@ async def update_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         with sqlite3.connect(db_name) as con:
             cur = con.cursor()
-            query = f"""INSERT OR REPLACE INTO locations VALUES
-                        ({chat_id}, {lat}, {lon})"""
+            query = f'INSERT OR REPLACE INTO locations VALUES \
+                        ({chat_id}, {lat}, {lon})'
             cur.execute(query)
             con.commit()
             await update.message.reply_text('Position updated.')
@@ -52,7 +52,7 @@ async def send_all():
                     with sqlite3.connect(db_name) as con:
                         cur = con.cursor()
                         cur.execute(
-                            f"DELETE FROM locations WHERE chat_id={user_id}"
+                            f'DELETE FROM locations WHERE chat_id={user_id}'
                         )
                         con.commit()
         except Exception:
@@ -66,6 +66,6 @@ sched.start()
 telegram_token = os.environ['TELEGRAM_TOKEN']
 bot = Bot(telegram_token)
 app = ApplicationBuilder().token(telegram_token).build()
-app.add_handler(CommandHandler("start", helper))
+app.add_handler(CommandHandler('start', helper))
 app.add_handler(MessageHandler(LOCATION, update_location))
 app.run_polling()
