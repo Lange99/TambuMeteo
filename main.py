@@ -15,23 +15,19 @@ db_name = 'locations.db'
 
 
 async def update_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update['chat']['id']
-
-    if update.get('location'):
-        lat = update['location']['latitude']
-        lon = update['location']['longitude']
-        try:
-            with sqlite3.connect(db_name) as con:
-                cur = con.cursor()
-                query = f"""INSERT OR REPLACE INTO locations VALUES
-                            ({chat_id}, {lat}, {lon})"""
-                cur.execute(query)
-                con.commit()
-                await update.message.reply_text(chat_id, 'Position updated.')
-        except Exception:
-            await update.message.reply_text(
-                chat_id, 'Position not updated, retry later.'
-                )
+    chat_id = update['message']['chat']['id']
+    lat = update['message']['location']['latitude']
+    lon = update['message']['location']['longitude']
+    try:
+        with sqlite3.connect(db_name) as con:
+            cur = con.cursor()
+            query = f"""INSERT OR REPLACE INTO locations VALUES
+                        ({chat_id}, {lat}, {lon})"""
+            cur.execute(query)
+            con.commit()
+            await update.message.reply_text('Position updated.')
+    except Exception:
+        await update.message.reply_text('Position not updated, retry later.')
 
 
 async def helper(update: Update, context: ContextTypes.DEFAULT_TYPE):
