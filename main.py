@@ -59,7 +59,7 @@ async def send_all():
             await bot.sendMessage(user_id, 'Warning! Weather service out.')
 
 
-sched = AsyncIOScheduler()
+sched = AsyncIOScheduler(timezone="UTC")
 sched.add_job(send_all, 'cron', hour=3)
 sched.start()
 
